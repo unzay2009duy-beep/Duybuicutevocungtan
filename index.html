@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>DUYBUI X ULTIMATE v4</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #007AFF;
+            --success: #34C759;
+            --danger: #FF3B30;
+            --bg: #F2F2F7;
+            --card: #FFFFFF;
+            --text: #000000;
+            --sec: #8E8E93;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #1C1C1E;
+                --card: #2C2C2E;
+                --text: #FFFFFF;
+                --sec: #AEAEB2;
+            }
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 14px 16px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: none;
+        }
+        .container.active {
+            display: block;
+        }
+        .card {
+            background: var(--card);
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        h2 { font-size: 20px; margin: 0 0 12px; font-weight: 600; }
+        .big-btn {
+            width: 100%;
+            height: 88px;
+            font-size: 32px;
+            font-weight: 700;
+            border-radius: 18px;
+            margin: 8px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tai-btn { background: linear-gradient(#FF9500, #E67E00); color: white; }
+        .xiu-btn { background: linear-gradient(#007AFF, #0066CC); color: white; }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 12px;
+            border: 1px solid var(--sec);
+            font-size: 16px;
+        }
+        button {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+        .dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            margin: 3px;
+        }
+        .dot-T { background: #FF9500; }
+        .dot-X { background: #007AFF; }
+        .score-bar {
+            height: 10px;
+            background: #E5E5EA;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .score-fill {
+            height: 100%;
+            transition: width 0.6s ease;
+        }
+        .tab-bar {
+            display: flex;
+            background: var(--card);
+            border-top: 1px solid var(--sec);
+            padding: 8px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            font-size: 11px;
+            color: var(--sec);
+            cursor: pointer;
+            padding: 4px 0;
+        }
+        .tab-item.active {
+            color: var(--primary);
+        }
+        .tab-item i {
+            font-size: 22px;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .final-box {
+            text-align: center;
+            padding: 24px;
+            border-radius: 18px;
+            color: white;
+            margin: 16px 0;
+        }
+        .layer {
+            padding: 8px;
+            border-bottom: 1px solid var(--sec);
+            font-size: 14px;
+        }
+        .layer:last-child { border: none; }
+        .alert { color: var(--danger); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="header">DUYBUI X ULTIMATE v4<br><small>AI THINKING MODEL – ANTI BẪY CẦU</small></div>
+
+<!-- TAB 1: TỔNG QUAN -->
+<div class="container active" id="tab1">
+    <div class="card">
+        <h2>Vốn Hiện Tại</h2>
+        <div style="font-size:32px;font-weight:700" id="current-capital">100000</div>
+        <div>Drawdown: <span id="drawdown">0%</span></div>
+        <div class="status" id="session-status" style="padding:10px;border-radius:12px;text-align:center;margin-top:12px;background:#34C759;color:white">An Toàn</div>
+    </div>
+    <div class="card">
+        <h2>Ghi Kết Quả TX</h2>
+        <button class="big-btn tai-btn" onclick="recordTX('T')">TÀI</button>
+        <button class="big-btn xiu-btn" onclick="recordTX('X')">XỈU</button>
+    </div>
+</div>
+
+<!-- TAB 2: AI THINKING MODEL -->
+<div class="container" id="tab2">
+    <div class="card">
+        <h2>AI Thinking Model – Anti Bẫy Cầu</h2>
+        <div class="layer">I. Reality Check: <span id="reality-check" class="alert">Dữ liệu chưa đủ</span></div>
+        <div class="layer">II. Thống Kê Thô: <span id="stat-layer"></span></div>
+        <div class="layer">III. Pattern Illusion Filter: <span id="illusion-filter"></span></div>
+        <div class="layer">IV. Crowd Psychology: <span id="crowd-layer"></span></div>
+        <div class="layer">V. Risk Control: <span id="risk-core"></span></div>
+        <div class="layer">VI. Quyết Định: <span id="decision-formula" class="alert">PASS</span></div>
+    </div>
+    <div class="card">
+        <h2>Behavioral Psychology</h2>
+        <select id="personal-loss" onchange="calcBehavioral()">
+            <option value="0">Chuỗi thua 0-2</option>
+            <option value="1">3-4</option>
+            <option value="2">5+</option>
+        </select>
+        <select id="emotion" onchange="calcBehavioral()">
+            <option value="10">Bình tĩnh</option>
+            <option value="5">Hơi nóng</option>
+            <option value="0">Muốn gỡ</option>
+        </select>
+        <div>Behavioral Score: <b id="beh-score">85</b>/100</div>
+        <div class="score-bar"><div id="beh-bar" class="score-fill" style="background:#34C759;width:85%"></div></div>
+    </div>
+    <button onclick="runAntiTrapAnalysis()" style="background:var(--primary);color:white;padding:16px;border-radius:14px;font-size:17px">CHẠY AI THINKING MODEL</button>
+</div>
+
+<!-- TAB 3: THỐNG KÊ -->
+<div class="container" id="tab3">
+    <div class="card">
+        <h2>Winrate & Stats</h2>
+        <div>Winrate: <span id="winrate">0%</span></div>
+        <div>Tổng lệnh: <span id="total-trades">0</span></div>
+        <div>Profit Factor: <span id="profit-factor">0</span></div>
+    </div>
+    <div class="card">
+        <h2>Equity Curve</h2>
+        <canvas id="equity-chart" height="180"></canvas>
+    </div>
+</div>
+
+<!-- TAB 4: MÔ PHỎNG -->
+<div class="container" id="tab4">
+    <div class="card">
+        <h2>Monte Carlo Simulation</h2>
+        <input type="number" id="sim-winrate" placeholder="Winrate % (ví dụ 55)" value="55">
+        <input type="number" id="sim-trades" placeholder="Số lệnh" value="100">
+        <button onclick="runSimulation()">Chạy 1000 mô phỏng</button>
+        <div>Vốn trung bình cuối: <span id="avg-final">0</span></div>
+        <div>Xác suất cháy TK: <span id="ruin-prob">0%</span></div>
+    </div>
+</div>
+
+<!-- TAB 5: CÀI ĐẶT -->
+<div class="container" id="tab5">
+    <div class="card">
+        <h2>Cài đặt Risk Engine</h2>
+        <input type="number" id="initial-capital" placeholder="Vốn ban đầu" value="100000">
+        <input type="number" id="risk-per-trade" placeholder="% Risk mỗi lệnh" value="1">
+        <input type="number" id="session-sl" placeholder="Stop Loss phiên %" value="5">
+        <button onclick="saveSettings()">LƯU & RESET SESSION</button>
+    </div>
+    <div class="card">
+        <button onclick="resetAll()" style="background:var(--danger)">Reset toàn bộ dữ liệu</button>
+        <button onclick="exportData()">Export JSON</button>
+        <input type="file" id="import-file" style="display:none" onchange="importData(event)">
+        <button onclick="document.getElementById('import-file').click()">Import JSON</button>
+    </div>
+</div>
+
+<div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab(0)"><i>🏠</i>Tổng Quan</div>
+    <div class="tab-item" onclick="switchTab(1)"><i>🧠</i>Anti Bẫy</div>
+    <div class="tab-item" onclick="switchTab(2)"><i>📊</i>Thống Kê</div>
+    <div class="tab-item" onclick="switchTab(3)"><i>🔮</i>Mô Phỏng</div>
+    <div class="tab-item" onclick="switchTab(4)"><i>⚙️</i>Cài Đặt</div>
+</div>
+
+<script>
+let data = {
+    initialCapital: 100000,
+    riskPerTrade: 1,
+    sessionSL: 5,
+    currentCapital: 100000,
+    peakCapital: 100000,
+    sessionStartCapital: 100000,
+    txHistory: [],
+    trades: [],
+    maxWinStreak: 0,
+    maxLossStreak: 0
+};
+
+function loadData() {
+    const saved = localStorage.getItem('duybuiXv4');
+    if (saved) data = JSON.parse(saved);
+    updateDashboard();
+}
+
+function saveData() {
+    localStorage.setItem('duybuiXv4', JSON.stringify(data));
+}
+
+function switchTab(n) {
+    document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab' + (n+1)).classList.add('active');
+    document.querySelectorAll('.tab-item').forEach((t,i) => t.classList.toggle('active', i===n));
+    if (n === 2) drawCharts();
+}
+
+function updateDashboard() {
+    document.getElementById('current-capital').textContent = Math.round(data.currentCapital);
+    const dd = ((data.peakCapital - data.currentCapital) / data.peakCapital * 100).toFixed(1);
+    document.getElementById('drawdown').textContent = dd + '%';
+    const statusEl = document.getElementById('session-status');
+    if (dd > 8) {
+        statusEl.textContent = 'DỪNG GIAO DỊCH';
+        statusEl.style.background = '#FF3B30';
+    } else if (dd > 4) {
+        statusEl.textContent = 'CẢNH BÁO';
+        statusEl.style.background = '#FF9500';
+    } else {
+        statusEl.textContent = 'An Toàn';
+        statusEl.style.background = '#34C759';
+    }
+}
+
+function recordTX(result) {
+    data.txHistory.push(result);
+    
+    // Cập nhật vốn theo risk
+    const riskAmount = data.currentCapital * (data.riskPerTrade / 100);
+    const isWin = Math.random() > 0.5; // giả lập thắng/thua (thay bằng logic thực nếu cần)
+    data.currentCapital += isWin ? riskAmount : -riskAmount;
+    if (data.currentCapital > data.peakCapital) data.peakCapital = data.currentCapital;
+    if (data.currentCapital < 0) data.currentCapital = 0;
+    
+    data.trades.push({win: isWin});
+    saveData();
+    updateDashboard();
+    runAntiTrapAnalysis(); // tự động chạy AI Thinking Model sau mỗi lệnh
+}
+
+// ===================== AI THINKING MODEL – ANTI BẪY CẦU =====================
+function runAntiTrapAnalysis() {
+    const recent100 = data.txHistory.slice(-100);
+    if (recent100.length < 20) {
+        document.getElementById('reality-check').textContent = 'Cần ít nhất 20 phiên để phân tích';
+        return;
+    }
+    
+    // I. Reality Check
+    const total = data.txHistory.length;
+    const reality = total < 200 ? 'Dữ liệu chưa đủ lớn - Nhiễu cao' : 'Dữ liệu đủ - Giả định độc lập phiên';
+    document.getElementById('reality-check').textContent = reality;
+
+    // II. Statistical Layer
+    const countT = recent100.filter(x => x === 'T').length;
+    const pctT = (countT / recent100.length * 100).toFixed(1);
+    const dev = Math.abs(pctT - 50).toFixed(1);
+    let maxStreak = 1, currentStreak = 1, alternations = 0;
+    for (let i = 1; i < recent100.length; i++) {
+        if (recent100[i] === recent100[i-1]) {
+            currentStreak++;
+            maxStreak = Math.max(maxStreak, currentStreak);
+        } else {
+            alternations++;
+            currentStreak = 1;
+        }
+    }
+    const statText = `%Tài: ${pctT}% | Độ lệch: ${dev}% | Chuỗi dài nhất: ${maxStreak} | Tần suất đảo: ${(alternations / (recent100.length - 1) * 100).toFixed(0)}%`;
+    document.getElementById('stat-layer').textContent = statText + (dev < 7 ? ' (Bình thường, không tín hiệu)' : ' (Lệch đáng chú ý)');
+
+    // III. Pattern Illusion Filter
+    const illusion = 'AI đã loại bỏ ảo giác: Không dự đoán dựa trên chuỗi bệt/đảo. Xác suất phiên sau luôn ~50% nếu công bằng.';
+    document.getElementById('illusion-filter').textContent = illusion;
+
+    // IV. Crowd Psychology
+    const crowd = maxStreak >= 6 ? 'Đám đông có thể bẫy: Muốn bắt gãy cầu → Nhà cái lợi nếu tiếp tục' : 'Tâm lý ổn định, không rõ bẫy';
+    document.getElementById('crowd-layer').textContent = crowd;
+
+    // V. Risk Control
+    const riskAmount = (data.currentCapital * (data.riskPerTrade / 100)).toFixed(0);
+    const riskText = `Risk lệnh này: ${riskAmount} (≤2-3% vốn). Nếu thua 3 liên tiếp: DỪNG. Lãi 10%: DỪNG.`;
+    document.getElementById('risk-core').textContent = riskText;
+
+    // VI. Decision Formula
+    calcBehavioral();
+    const behScore = parseInt(document.getElementById('beh-score').textContent);
+    const decision = (dev < 7 && behScore >= 70 && data.trades.slice(-3).every(t => t.win === false) === false) ? 'VÀO LỆNH (không lợi thế thống kê nhưng rủi ro thấp)' : 'PASS - Không đủ điều kiện an toàn';
+    document.getElementById('decision-formula').textContent = decision;
+}
+
+// ===================== BEHAVIORAL =====================
+function calcBehavioral() {
+    const lossLevel = parseInt(document.getElementById('personal-loss').value);
+    const emo = parseInt(document.getElementById('emotion').value);
+    const beh = Math.round(85 - lossLevel*15 - (10-emo)*3);
+    document.getElementById('beh-score').textContent = beh;
+    document.getElementById('beh-bar').style.width = beh + '%';
+}
+
+// ===================== THỐNG KÊ & BIỂU ĐỒ =====================
+function drawCharts() {
+    const ctx = document.getElementById('equity-chart').getContext('2d');
+    let equity = [data.initialCapital];
+    let cap = data.initialCapital;
+    data.trades.forEach(t => {
+        const r = cap * (data.riskPerTrade / 100);
+        cap += t.win ? r : -r;
+        equity.push(cap);
+    });
+    new Chart(ctx, {
+        type: 'line',
+        data: { labels: equity.map((_,i)=>i), datasets: [{ data: equity, borderColor: '#007AFF', tension: 0.4 }] },
+        options: { plugins: { legend: { display: false } } }
+    });
+}
+
+// ===================== MÔ PHỎNG =====================
+function runSimulation() {
+    const wr = parseFloat(document.getElementById('sim-winrate').value)/100 || 0.5;
+    const num = parseInt(document.getElementById('sim-trades').value) || 100;
+    let final = 0, ruin = 0;
+    for (let i = 0; i < 1000; i++) {
+        let c = data.initialCapital;
+        for (let j = 0; j < num; j++) {
+            c *= (Math.random() < wr) ? (1 + data.riskPerTrade/100) : (1 - data.riskPerTrade/100);
+            if (c <= 0) { ruin++; break; }
+        }
+        final += c;
+    }
+    document.getElementById('avg-final').textContent = Math.round(final/1000);
+    document.getElementById('ruin-prob').textContent = (ruin/10).toFixed(1) + '%';
+}
+
+// ===================== CÀI ĐẶT =====================
+function saveSettings() {
+    data.initialCapital = parseFloat(document.getElementById('initial-capital').value) || 100000;
+    data.riskPerTrade = parseFloat(document.getElementById('risk-per-trade').value) || 1;
+    data.sessionSL = parseFloat(document.getElementById('session-sl').value) || 5;
+    data.currentCapital = data.initialCapital;
+    data.peakCapital = data.initialCapital;
+    data.sessionStartCapital = data.initialCapital;
+    data.txHistory = [];
+    data.trades = [];
+    saveData();
+    updateDashboard();
+    alert('Đã lưu & reset session!');
+}
+
+function resetAll() {
+    if (confirm('Xóa toàn bộ dữ liệu?')) {
+        localStorage.clear();
+        location.reload();
+    }
+}
+
+function exportData() {
+    const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'duybui_x_ultimate_v4.json';
+    a.click();
+}
+
+function importData(e) {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = ev => {
+        data = JSON.parse(ev.target.result);
+        saveData();
+        updateDashboard();
+        alert('Import thành công!');
+    };
+    reader.readAsText(file);
+}
+
+// Khởi chạy
+loadData();
+</script>
+</body>
+</html>
